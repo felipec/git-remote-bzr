@@ -1,0 +1,19 @@
+language: python
+
+install:
+  - pip install -q --allow-external bzr --allow-unverified bzr bzr${BZR_VERSION+==$BZR_VERSION} || true
+
+before_script:
+  - bzr --version || true
+  - export PYTHON_PATH="$(which python)"
+
+script:
+  - make test
+
+matrix:
+  include:
+    - env: BZR_VERSION=2.6.0
+    - env: BZR_VERSION=2.5.1
+    - env: BZR_VERSION=2.2.3
+    - python: 2.7
+    - python: 2.6
