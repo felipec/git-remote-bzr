@@ -1,0 +1,74 @@
+git-remote-bzr(1)
+================
+
+NAME
+----
+git-remote-bzr - bidirectional bridge between Git and Bazaar
+
+
+SYNOPSIS
+--------
+[verse]
+'git clone' bzr::<bzr repository>
+
+
+DESCRIPTION
+-----------
+
+This tool allows you to transparently clone, fetch and push to and from Bazaar
+repositories as if they were Git ones.
+
+To use it you simply need to use the "'bzr::'" prefix when specifying a remote URL
+(e.g. when cloning).
+
+
+EXAMPLE
+-------
+--------------------------------------
+git clone bzr::lp:ubuntu/hello
+--------------------------------------
+
+
+NOTES
+-----
+
+Remember to run `git gc --aggressive` after cloning a repository, specially if
+it's a big one. Otherwise lots of space will be wasted.
+
+The oldest version of Bazaar supported is 2.0. Older versions are not tested.
+
+Branches vs. repositories
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bazaar's UI can clone only branches, but a repository can contain multiple
+branches, and 'git-remote-bzr' can clone both.
+
+For example, to clone a branch:
+
+-------------------------------------
+git clone bzr::bzr://bzr.savannah.gnu.org/emacs/trunk emacs-trunk
+-------------------------------------
+
+And to clone the whole repository:
+
+-------------------------------------
+git clone bzr::bzr://bzr.savannah.gnu.org/emacs emacs
+-------------------------------------
+
+The second command would clone all the branches contained in the emacs
+repository, however, it's possible to specify only certain branches:
+
+-------------------------------------
+git config remote-bzr.branches 'trunk, xwindow'
+-------------------------------------
+
+Some remotes don't support listing the branches contained in the repository, in
+which cases you need to manually specify the branches, and while you can
+specify the configuration in the clone command, you might find this easier:
+
+-------------------------------------
+git init emacs
+git remote add origin bzr::bzr://bzr.savannah.gnu.org/emacs
+git config remote-bzr.branches 'trunk, xwindow'
+git fetch
+-------------------------------------
