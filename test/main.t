@@ -21,8 +21,8 @@ then
 fi
 
 check () {
-	echo $3 >expected &&
-	git --git-dir=$1/.git log --format='%s' -1 $2 >actual
+	echo $3 > expected &&
+	git --git-dir=$1/.git log --format='%s' -1 $2 > actual
 	test_cmp expected actual
 }
 
@@ -32,7 +32,7 @@ test_expect_success 'cloning' '
 	(
 	bzr init bzrrepo &&
 	cd bzrrepo &&
-	echo one >content &&
+	echo one > content &&
 	bzr add content &&
 	bzr commit -m one
 	) &&
@@ -44,7 +44,7 @@ test_expect_success 'cloning' '
 test_expect_success 'pulling' '
 	(
 	cd bzrrepo &&
-	echo two >content &&
+	echo two > content &&
 	bzr commit -m two
 	) &&
 
@@ -56,13 +56,13 @@ test_expect_success 'pulling' '
 test_expect_success 'pushing' '
 	(
 	cd gitrepo &&
-	echo three >content &&
+	echo three > content &&
 	git commit -a -m three &&
 	git push
 	) &&
 
-	echo three >expected &&
-	cat bzrrepo/content >actual &&
+	echo three > expected &&
+	cat bzrrepo/content > actual &&
 	test_cmp expected actual
 '
 
@@ -70,16 +70,16 @@ test_expect_success 'roundtrip' '
 	(
 	cd gitrepo &&
 	git pull &&
-	git log --format="%s" -1 origin/master >actual
+	git log --format="%s" -1 origin/master > actual
 	) &&
-	echo three >expected &&
+	echo three > expected &&
 	test_cmp expected actual &&
 
 	(cd gitrepo && git push && git pull) &&
 
 	(
 	cd bzrrepo &&
-	echo four >content &&
+	echo four > content &&
 	bzr commit -m four
 	) &&
 
@@ -89,19 +89,19 @@ test_expect_success 'roundtrip' '
 
 	(
 	cd gitrepo &&
-	echo five >content &&
+	echo five > content &&
 	git commit -a -m five &&
 	git push && git pull
 	) &&
 
 	(cd bzrrepo && bzr revert) &&
 
-	echo five >expected &&
-	cat bzrrepo/content >actual &&
+	echo five > expected &&
+	cat bzrrepo/content > actual &&
 	test_cmp expected actual
 '
 
-cat >expected <<\EOF
+cat > expected <<\EOF
 100644 blob 54f9d6da5c91d556e6b54340b1327573073030af	content
 100755 blob 68769579c3eaadbe555379b9c3538e6628bae1eb	executable
 120000 blob 6b584e8ece562ebffc15d38808cd6b98fc3d97ea	link
@@ -110,7 +110,7 @@ EOF
 test_expect_success 'special modes' '
 	(
 	cd bzrrepo &&
-	echo exec >executable
+	echo exec > executable
 	chmod +x executable &&
 	bzr add executable
 	bzr commit -m exec &&
@@ -125,21 +125,21 @@ test_expect_success 'special modes' '
 	(
 	cd gitrepo &&
 	git pull
-	git ls-tree HEAD >../actual
+	git ls-tree HEAD > ../actual
 	) &&
 
 	test_cmp expected actual &&
 
 	(
 	cd gitrepo &&
-	git cat-file -p HEAD:link >../actual
+	git cat-file -p HEAD:link > ../actual
 	) &&
 
-	printf content >expected &&
+	printf content > expected &&
 	test_cmp expected actual
 '
 
-cat >expected <<\EOF
+cat > expected <<\EOF
 100644 blob 54f9d6da5c91d556e6b54340b1327573073030af	content
 100755 blob 68769579c3eaadbe555379b9c3538e6628bae1eb	executable
 120000 blob 6b584e8ece562ebffc15d38808cd6b98fc3d97ea	link
@@ -150,8 +150,8 @@ test_expect_success 'moving directory' '
 	(
 	cd bzrrepo &&
 	mkdir movedir &&
-	echo one >movedir/one &&
-	echo two >movedir/two &&
+	echo one > movedir/one &&
+	echo two > movedir/two &&
 	bzr add movedir &&
 	bzr commit -m movedir &&
 	bzr mv movedir movedir-new &&
@@ -161,7 +161,7 @@ test_expect_success 'moving directory' '
 	(
 	cd gitrepo &&
 	git pull &&
-	git ls-tree HEAD >../actual
+	git ls-tree HEAD > ../actual
 	) &&
 
 	test_cmp expected actual
@@ -170,7 +170,7 @@ test_expect_success 'moving directory' '
 test_expect_success 'different authors' '
 	(
 	cd bzrrepo &&
-	echo john >>content &&
+	echo john >> content &&
 	bzr commit -m john \
 	  --author "Jane Rey <jrey@example.com>" \
 	  --author "John Doe <jdoe@example.com>"
@@ -179,10 +179,10 @@ test_expect_success 'different authors' '
 	(
 	cd gitrepo &&
 	git pull &&
-	git show --format="%an <%ae>, %cn <%ce>" --quiet >../actual
+	git show --format="%an <%ae>, %cn <%ce>" --quiet > ../actual
 	) &&
 
-	echo "Jane Rey <jrey@example.com>, A U Thor <author@example.com>" >expected &&
+	echo "Jane Rey <jrey@example.com>, A U Thor <author@example.com>" > expected &&
 	test_cmp expected actual
 '
 
@@ -199,12 +199,12 @@ test_expect_success 'fetch utf-8 filenames' '
 	bzr init bzrrepo &&
 	cd bzrrepo &&
 
-	echo test >>"ærø" &&
+	echo test >> "ærø" &&
 	bzr add "ærø" &&
-	echo test >>"ø~?" &&
+	echo test >> "ø~?" &&
 	bzr add "ø~?" &&
 	bzr commit -m add-utf-8 &&
-	echo test >>"ærø" &&
+	echo test >> "ærø" &&
 	bzr commit -m test-utf-8 &&
 	bzr rm "ø~?" &&
 	bzr mv "ærø" "ø~?" &&
@@ -214,9 +214,9 @@ test_expect_success 'fetch utf-8 filenames' '
 	(
 	git clone "bzr::bzrrepo" gitrepo &&
 	cd gitrepo &&
-	git -c core.quotepath=false ls-files >../actual
+	git -c core.quotepath=false ls-files > ../actual
 	) &&
-	echo "ø~?" >expected &&
+	echo "ø~?" > expected &&
 	test_cmp expected actual
 '
 
@@ -232,7 +232,7 @@ test_expect_success 'push utf-8 filenames' '
 	bzr init bzrrepo &&
 	cd bzrrepo &&
 
-	echo one >>content &&
+	echo one >> content &&
 	bzr add content &&
 	bzr commit -m one
 	) &&
@@ -241,15 +241,15 @@ test_expect_success 'push utf-8 filenames' '
 	git clone "bzr::bzrrepo" gitrepo &&
 	cd gitrepo &&
 
-	echo test >>"ærø" &&
+	echo test >> "ærø" &&
 	git add "ærø" &&
 	git commit -m utf-8 &&
 
 	git push
 	) &&
 
-	(cd bzrrepo && bzr ls >../actual) &&
-	printf "content\nærø\n" >expected &&
+	(cd bzrrepo && bzr ls > ../actual) &&
+	printf "content\nærø\n" > expected &&
 	test_cmp expected actual
 '
 
@@ -259,7 +259,7 @@ test_expect_success 'pushing a merge' '
 	(
 	bzr init bzrrepo &&
 	cd bzrrepo &&
-	echo one >content &&
+	echo one > content &&
 	bzr add content &&
 	bzr commit -m one
 	) &&
@@ -268,27 +268,27 @@ test_expect_success 'pushing a merge' '
 
 	(
 	cd bzrrepo &&
-	echo two >content &&
+	echo two > content &&
 	bzr commit -m two
 	) &&
 
 	(
 	cd gitrepo &&
-	echo three >content &&
+	echo three > content &&
 	git commit -a -m three &&
 	git fetch &&
 	git merge origin/master || true &&
-	echo three >content &&
+	echo three > content &&
 	git commit -a --no-edit &&
 	git push
 	) &&
 
-	echo three >expected &&
-	cat bzrrepo/content >actual &&
+	echo three > expected &&
+	cat bzrrepo/content > actual &&
 	test_cmp expected actual
 '
 
-cat >expected <<\EOF
+cat > expected <<\EOF
 origin/HEAD
 origin/branch
 origin/trunk
@@ -302,7 +302,7 @@ test_expect_success 'proper bzr repo' '
 	(
 	bzr init bzrrepo/trunk &&
 	cd bzrrepo/trunk &&
-	echo one >>content &&
+	echo one >> content &&
 	bzr add content &&
 	bzr commit -m one
 	) &&
@@ -310,14 +310,14 @@ test_expect_success 'proper bzr repo' '
 	(
 	bzr branch bzrrepo/trunk bzrrepo/branch &&
 	cd bzrrepo/branch &&
-	echo two >>content &&
+	echo two >> content &&
 	bzr commit -m one
 	) &&
 
 	(
 	git clone "bzr::bzrrepo" gitrepo &&
 	cd gitrepo &&
-	git for-each-ref --format "%(refname:short)" refs/remotes/origin >../actual
+	git for-each-ref --format "%(refname:short)" refs/remotes/origin > ../actual
 	) &&
 
 	test_cmp expected actual
@@ -330,11 +330,11 @@ test_expect_success 'strip' '
 	bzr init bzrrepo &&
 	cd bzrrepo &&
 
-	echo one >>content &&
+	echo one >> content &&
 	bzr add content &&
 	bzr commit -m one &&
 
-	echo two >>content &&
+	echo two >> content &&
 	bzr commit -m two
 	) &&
 
@@ -344,18 +344,18 @@ test_expect_success 'strip' '
 	cd bzrrepo &&
 	bzr uncommit --force &&
 
-	echo three >>content &&
+	echo three >> content &&
 	bzr commit -m three &&
 
-	echo four >>content &&
+	echo four >> content &&
 	bzr commit -m four &&
-	bzr log --line | sed -e "s/^[0-9][0-9]*: //" >../expected
+	bzr log --line | sed -e "s/^[0-9][0-9]*: //" > ../expected
 	) &&
 
 	(
 	cd gitrepo &&
 	git fetch &&
-	git log --format="%an %ad %s" --date=short origin/master >../actual
+	git log --format="%an %ad %s" --date=short origin/master > ../actual
 	) &&
 
 	test_cmp expected actual
@@ -375,7 +375,7 @@ test_expect_success 'export utf-8 authors' '
 	(
 	git init gitrepo &&
 	cd gitrepo &&
-	echo greg >>content &&
+	echo greg >> content &&
 	git add content &&
 	git commit -m one &&
 	git remote add bzr "bzr::../bzrrepo" &&
@@ -384,10 +384,10 @@ test_expect_success 'export utf-8 authors' '
 
 	(
 	cd bzrrepo &&
-	bzr log | grep "^committer: " >../actual
+	bzr log | grep "^committer: " > ../actual
 	) &&
 
-	echo "committer: Grégoire <committer@example.com>" >expected &&
+	echo "committer: Grégoire <committer@example.com>" > expected &&
 	test_cmp expected actual
 '
 
@@ -399,7 +399,7 @@ test_expect_success 'push different author' '
 	(
 	git init gitrepo &&
 	cd gitrepo &&
-	echo john >>content &&
+	echo john >> content &&
 	git add content &&
 	git commit -m john --author "John Doe <jdoe@example.com>" &&
 	git remote add bzr "bzr::../bzrrepo" &&
@@ -408,10 +408,10 @@ test_expect_success 'push different author' '
 
 	(
 	cd bzrrepo &&
-	bzr log | grep "^author: " >../actual
+	bzr log | grep "^author: " > ../actual
 	) &&
 
-	echo "author: John Doe <jdoe@example.com>" >expected &&
+	echo "author: John Doe <jdoe@example.com>" > expected &&
 	test_cmp expected actual
 '
 
