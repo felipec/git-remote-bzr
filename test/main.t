@@ -14,7 +14,7 @@ then
 	test_done
 fi
 
-if ! python -c 'import bzrlib'
+if ! python -c 'import bzrlib' > /dev/null 2>&1
 then
 	skip_all='skipping remote-bzr tests; bzr not available'
 	test_done
