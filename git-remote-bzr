@@ -41,7 +41,11 @@ import os
 import json
 import re
 import StringIO
-import atexit, shutil, hashlib, urlparse, subprocess
+import atexit
+import shutil
+import hashlib
+import urlparse
+import subprocess
 
 NAME_RE = re.compile('^([^<>]+)')
 AUTHOR_RE = re.compile('^([^<>]+?)? ?[<>]([^<>]*)(?:$|>)')
@@ -87,7 +91,7 @@ class Marks:
             self.rev_marks[mark] = rev
 
     def dict(self):
-        return { 'tips': self.tips, 'marks': self.marks, 'last-mark' : self.last_mark }
+        return { 'tips': self.tips, 'marks': self.marks, 'last-mark': self.last_mark }
 
     def store(self):
         json.dump(self.dict(), open(self.path, 'w'))
@@ -608,10 +612,10 @@ def parse_commit(parser):
         if parser.check('M'):
             t, m, mark_ref, path = line.split(' ', 3)
             mark = int(mark_ref[1:])
-            f = { 'mode' : m, 'mark' : mark }
+            f = { 'mode': m, 'mark': mark }
         elif parser.check('D'):
             t, path = line.split(' ', 1)
-            f = { 'deleted' : True }
+            f = { 'deleted': True }
         else:
             die('Unknown file command: %s' % line)
         path = c_style_unescape(path).decode('utf-8')
@@ -723,7 +727,7 @@ def do_capabilities(parser):
     print
 
 def ref_is_valid(name):
-    return not True in [c in name for c in '~^: \\']
+    return True not in [c in name for c in '~^: \\']
 
 def do_list(parser):
     master_branch = None
