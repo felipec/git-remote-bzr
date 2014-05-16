@@ -318,6 +318,33 @@ def export_branch(repo, name):
 
         msg += '\n'
 
+        if rev.properties.has_key('file-info'):
+            from bzrlib import bencode
+            try:
+                files = bencode.bdecode(rev.properties['file-info'].encode('utf-8'))
+            except Exception, e:
+                # protect against repository corruption
+                # (happens in the wild, see MySQL tree)
+                files = ()
+
+            rmsg = msg.rstrip('\r\n ')
+            file_comments = []
+            for file in files:
+              fmsg = file['message'].rstrip('\r\n ')
+              # Skip empty file comments and file comments identical to the
+              # commit comment (they originate from tools and policies that
+              # require writing per-file comments and users simply copy-paste
+              # revision comment over, these comments add no value as a part of
+              # the commit comment).
+              if fmsg == '' or fmsg == rmsg:
+                  continue
+
+              file_comments.append(file['path'] + ':')
+              for l in fmsg.split('\n'):
+                  file_comments.append('  ' + l)
+
+            msg += '\n' + '\n'.join(file_comments) + '\n'
+
         if len(parents) == 0:
             parent = bzrlib.revision.NULL_REVISION
         else:
