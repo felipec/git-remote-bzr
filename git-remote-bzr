@@ -852,7 +852,7 @@ def find_branches(repo):
         try:
             cur = transport.clone(subdir)
             branch = bzrlib.branch.Branch.open_from_transport(cur)
-        except bzrlib.errors.NotBranchError:
+        except (bzrlib.errors.NotBranchError, bzrlib.errors.PermissionDenied):
             continue
         else:
             yield name, branch.base
