@@ -411,6 +411,10 @@ def export_tag(repo, name):
     print "from :%u" % rev_to_mark(tags[name])
     print
 
+def export_head(repo):
+    name = master_branch
+    export_branch(repo, name)
+
 def do_import(parser):
     repo = parser.repo
     path = os.path.join(dirname, 'marks-git')
@@ -424,10 +428,12 @@ def do_import(parser):
 
     while parser.check('import'):
         ref = parser[1]
-        if ref.startswith('refs/heads/'):
+        if ref == 'HEAD':
+            export_head(repo)
+        elif ref.startswith('refs/heads/'):
             name = ref[len('refs/heads/'):]
             export_branch(repo, name)
-        if ref.startswith('refs/tags/'):
+        elif ref.startswith('refs/tags/'):
             name = ref[len('refs/tags/'):]
             export_tag(repo, name)
         parser.next()
@@ -782,7 +788,7 @@ def ref_is_valid(name):
     return True not in [c in name for c in '~^: \\']
 
 def do_list(parser):
-    master_branch = None
+    global master_branch
 
     for name in branches:
         if not master_branch:
@@ -941,9 +947,11 @@ def main(args):
     global branches, peers
     global transports
     global force
+    global master_branch
 
     marks = None
     is_tmp = False
+    master_branch = None
     gitdir = os.environ.get('GIT_DIR', None)
 
     if len(args) < 3:
