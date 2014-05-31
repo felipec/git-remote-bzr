@@ -19,9 +19,11 @@ clean:
 D = $(DESTDIR)
 
 install: install-doc
-	install -D -m 755 git-remote-bzr $(D)$(bindir)/git-remote-bzr
+	install -d -m 755 $(D)$(bindir)/
+	install -m 755 git-remote-bzr $(D)$(bindir)/git-remote-bzr
 
 install-doc: doc
-	install -D -m 644 doc/git-remote-bzr.1 $(D)$(mandir)/git-remote-bzr.1
+	install -d -m 755 $(D)$(mandir)/
+	install -m 644 doc/git-remote-bzr.1 $(D)$(mandir)/git-remote-bzr.1
 
 .PHONY: all test install install-doc clean
