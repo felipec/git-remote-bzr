@@ -435,4 +435,44 @@ test_expect_success 'push different author' '
 	test_cmp expected actual
 '
 
+cat > expected <<\EOF
+100644 blob d95f3ad14dee633a758d2e331151e950dd13e4ed	content
+040000 tree bec63e37d08c454ad3a60cde90b70f3f7d077852	dir
+100755 blob 68769579c3eaadbe555379b9c3538e6628bae1eb	executable
+120000 blob 6b584e8ece562ebffc15d38808cd6b98fc3d97ea	link
+EOF
+
+test_expect_success 'mode change' '
+	(
+	bzr init bzrrepo &&
+	cd bzrrepo &&
+	echo content > content &&
+	bzr add content &&
+	echo exec > executable &&
+	bzr add executable &&
+	echo link > link &&
+	bzr add link &&
+	echo dir > dir &&
+	bzr add dir &&
+	bzr commit -m initial &&
+
+	chmod +x executable &&
+	ln -sf content link &&
+	rm dir &&
+	mkdir -p dir &&
+	echo file > dir/file &&
+	bzr add dir/file &&
+	bzr commit -m modify
+	) &&
+
+	(
+	git clone "bzr::bzrrepo" gitrepo &&
+	cd gitrepo &&
+	git pull &&
+	git ls-tree HEAD > ../actual
+	) &&
+
+	test_cmp expected actual
+'
+
 test_done
