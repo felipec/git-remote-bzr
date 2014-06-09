@@ -132,10 +132,10 @@ test_expect_success 'special modes' '
 	cd bzrrepo &&
 	echo exec > executable
 	chmod +x executable &&
-	bzr add executable
+	bzr add executable &&
 	bzr commit -m exec &&
-	ln -s content link
-	bzr add link
+	ln -s content link &&
+	bzr add link &&
 	bzr commit -m link &&
 	mkdir dir &&
 	bzr add dir &&
@@ -144,7 +144,7 @@ test_expect_success 'special modes' '
 
 	(
 	cd gitrepo &&
-	git pull
+	git pull &&
 	git ls-tree HEAD > ../actual
 	) &&
 
@@ -212,8 +212,8 @@ rm -rf bzrrepo gitrepo
 test_expect_success 'fetch utf-8 filenames' '
 	test_when_finished "rm -rf bzrrepo gitrepo && LC_ALL=C" &&
 
-	LC_ALL=en_US.UTF-8
-	export LC_ALL
+	LC_ALL=en_US.UTF-8 &&
+	export LC_ALL &&
 
 	(
 	bzr init bzrrepo &&
@@ -245,8 +245,8 @@ test_expect_success 'push utf-8 filenames' '
 
 	mkdir -p tmp && cd tmp &&
 
-	LC_ALL=en_US.UTF-8
-	export LC_ALL
+	LC_ALL=en_US.UTF-8 &&
+	export LC_ALL &&
 
 	(
 	bzr init bzrrepo &&
@@ -382,13 +382,13 @@ test_expect_success 'strip' '
 '
 
 test_expect_success 'export utf-8 authors' '
-	test_when_finished "rm -rf bzrrepo gitrepo && LC_ALL=C && GIT_COMMITTER_NAME=\"C O Mitter\""
+	test_when_finished "rm -rf bzrrepo gitrepo && LC_ALL=C && GIT_COMMITTER_NAME=\"C O Mitter\"" &&
 
-	LC_ALL=en_US.UTF-8
-	export LC_ALL
+	LC_ALL=en_US.UTF-8 &&
+	export LC_ALL &&
 
-	GIT_COMMITTER_NAME="Grégoire"
-	export GIT_COMMITTER_NAME
+	GIT_COMMITTER_NAME="Grégoire" &&
+	export GIT_COMMITTER_NAME &&
 
 	bzr init bzrrepo &&
 
