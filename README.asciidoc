@@ -16,6 +16,8 @@ chmod +x ~/bin/git-remote-bzr
 
 That's it :)
 
+Obviously you will need Bazaar installed.
+
 == Notes ==
 
 Remember to run `git gc --aggressive` after cloning a repository, specially if
