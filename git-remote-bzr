@@ -46,6 +46,7 @@ import shutil
 import hashlib
 import urlparse
 import subprocess
+import codecs
 
 NAME_RE = re.compile('^([^<>]+)')
 AUTHOR_RE = re.compile('^([^<>]+?)? ?[<>]([^<>]*)(?:$|>)')
@@ -316,9 +317,18 @@ def export_branch(repo, name):
             author = "%s %u %s" % (fixup_user(author), time, gittz(tz))
         else:
             author = committer
-        msg = rev.message.encode('utf-8')
 
+        author = rev.properties.get('git-author', author.decode('utf-8', 'replace')).encode('utf8')
+        committer = rev.properties.get('git-committer', committer.decode('utf-8', 'replace')).encode('utf8')
+
+        msg = rev.message.encode('utf-8')
         msg += '\n'
+
+        if 'git-commit-message-base64' in rev.properties:
+            try:
+                msg = codecs.decode(rev.properties['git-commit-message-base64'], 'base64')
+            except:
+                pass
 
         if rev.properties.has_key('file-info'):
             from bzrlib import bencode
@@ -625,8 +635,10 @@ def parse_commit(parser):
     commit_mark = parser.get_mark()
     parser.next()
     author = parser.get_author()
+    author_raw = parser.line.decode("utf8")
     parser.next()
     committer = parser.get_author()
+    committer_raw = parser.line.decode("utf8")
     parser.next()
     data = parser.get_data()
     parser.next()
@@ -637,7 +649,9 @@ def parse_commit(parser):
         parents.append(parser.get_mark())
         parser.next()
 
-    # fast-export adds an extra newline
+    original_commit_msg = data
+
+    # fast-export adds an extra newline (sometimes)
     if data[-1] == '\n':
         data = data[:-1]
 
@@ -666,6 +680,18 @@ def parse_commit(parser):
     props = {}
     props['branch-nick'] = branch.nick
     props['authors'] = author
+
+    committer_rt = "comitter %s %u %s" % (fixup_user(committer), date, gittz(tz))
+    author_rt = "author %s %u %s" % (fixup_user(author), date, gittz(tz))
+
+    # write special commit properties with original raw data in those cases
+    # where the normal restoration from bzr to git would not reproduce them.
+    if author_rt != author_raw and author_raw.startswith('author '):
+        props['git-author'] = author_raw[len('author '):]
+    if committer_rt != committer_raw and committer_raw.startswith('committer '):
+        props['git-committer'] = committer_raw[len('committer '):]
+    if original_commit_msg != data + '\n':
+        props['git-commit-message-base64'] = codecs.encode(original_commit_msg, 'base64')
 
     mtree = CustomTree(branch, revid, parents, files)
     changes = mtree.iter_changes()
