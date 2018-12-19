@@ -206,8 +206,23 @@ test_expect_success 'different authors' '
 	test_cmp expected actual
 '
 
+test_expect_success 'different authors roundtrip' '
+	(
+	cd gitrepo &&
+	git log --format=fuller > ../expected
+	) &&
+
+	(
+	git clone "bzr::bzrrepo" gitrepo-cp &&
+	cd gitrepo-cp &&
+	git log --format=fuller > ../actual
+	) &&
+
+	test_cmp expected actual
+'
+
 # cleanup previous stuff
-rm -rf bzrrepo gitrepo
+rm -rf bzrrepo gitrepo gitrepo-cp
 
 test_expect_success 'fetch utf-8 filenames' '
 	test_when_finished "rm -rf bzrrepo gitrepo && LC_ALL=C" &&
