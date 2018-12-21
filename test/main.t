@@ -492,6 +492,55 @@ test_expect_success 'mode change' '
 	test_cmp expected actual
 '
 
+# commit without a newline at the end
+cat > fast-import <<\EOF
+blob
+mark :1
+data 3
+one
+reset refs/heads/new
+commit refs/heads/new
+mark :2
+author A U Thor <author@example.com> 1545414172 +0000
+committer C O Mitter <committer@example.com> 1545414172 +0000
+data 10
+no newlineM 100644 :1 content
+EOF
+
+test_expect_success 'commit messages roundtrip' '
+	test_when_finished "rm -rf bzrrepo gitrepo gitrepo-cp" &&
+
+	(
+	bzr init bzrrepo &&
+	cd bzrrepo &&
+	echo dummy > content &&
+	bzr add content &&
+	bzr commit -m dummy
+	) &&
+
+	git clone "bzr::bzrrepo" gitrepo &&
+	rm -rf bzrrepo gitrepo/.git/bzr &&
+	bzr init bzrrepo &&
+	(
+	cd gitrepo &&
+	git fast-import < ../fast-import &&
+	git reset e2abe971b29119aaee046b6f7bd4222cbb8079de &&
+	echo two > content &&
+	echo "three\rno, two" > message &&
+	git commit -a -F message &&
+	git push --force &&
+	git log --format=fuller > ../expected
+	) &&
+
+	(
+	git clone "bzr::bzrrepo" gitrepo-cp &&
+	cd gitrepo-cp &&
+	git log  --format=fuller > ../actual
+	) &&
+
+	test_cmp expected actual
+'
+
 test_expect_success 'cherry pick roundtrip' '
 	test_when_finished "rm -rf bzrrepo gitrepo gitrepo-cp" &&
 
