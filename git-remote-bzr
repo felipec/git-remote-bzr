@@ -641,6 +641,9 @@ def parse_commit(parser):
     if data[-1] == '\n':
         data = data[:-1]
 
+    # bzr does not accept \r
+    data = data.replace('\r', '')
+
     files = {}
 
     for line in parser:
