@@ -443,6 +443,8 @@ cat > expected <<\EOF
 EOF
 
 test_expect_success 'mode change' '
+	test_when_finished "rm -rf bzrrepo gitrepo" &&
+
 	(
 	bzr init bzrrepo &&
 	cd bzrrepo &&
